@@ -30,7 +30,7 @@ func main() {
 		},
 	}
 	client := &http.Client{Transport: tr}
-	resp, err := client.Get("https://localhost:3001")
+	resp, err := client.Get("https://cliu2:cliu2@localhost:3001")
 	if err != nil {
 		log.Fatal(err)
 	}

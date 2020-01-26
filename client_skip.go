@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -9,8 +10,24 @@ import (
 )
 
 func main() {
+	caCrtPath := "ca.crt"
+	pool := x509.NewCertPool()
+	caCrt, err := ioutil.ReadFile(caCrtPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	pool.AppendCertsFromPEM(caCrt)
+
+	cliCrt, err := tls.LoadX509KeyPair("client.crt", "client.key")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig: &tls.Config{
+			RootCAs:            pool,
+			Certificates:       []tls.Certificate{cliCrt},
+			InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: tr}
 	resp, err := client.Get("https://cliu2:cliu2@localhost:3001")
